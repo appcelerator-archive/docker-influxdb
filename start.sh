@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/bin/sh
 
 #display env. variables
 echo ---------------------------------------------------------------------------
@@ -13,5 +12,5 @@ else
   echo containerPilot conffile
   cat /etc/containerpilot.json
   echo ---------------------------------------------------------------------------
-  /bin/containerpilot /run.sh
+  exec /bin/containerpilot /run.sh
 fi
