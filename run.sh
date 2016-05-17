@@ -41,18 +41,6 @@ if [ -n "${FORCE_HOSTNAME}" ]; then
     export CONFIG_HOSTNAME
 fi
 
-# NOTE: 'seed-servers.' is nowhere to be found in config.toml, this cannot work anymore! NEED FOR REVIEW!
-# if [ -n "${SEEDS}" ]; then
-#     SEEDS=$(eval SEEDS=$SEEDS ; echo $SEEDS | grep '^\".*\"$' || echo "\""$SEEDS"\"" | sed -e 's/, */", "/g')
-#     /usr/bin/perl -p -i -e "s/^# seed-servers.*$/seed-servers = [${SEEDS}]/g" ${CONFIG_FILE}
-# fi
-
-if [ -n "${REPLI_FACTOR}" ]; then
-    # replication-factor
-    CONFIG_REPLI_FACTOR="$REPLI_FACTOR"
-    export CONFIG_REPLI_FACTOR
-fi
-
 if [ "${PRE_CREATE_DB}" == "**None**" ]; then
     unset PRE_CREATE_DB
 fi
