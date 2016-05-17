@@ -33,11 +33,23 @@ ENV INFLUXDB_INIT_PWD root
 ADD types.db /usr/share/collectd/types.db
 ADD config.toml /config/config.toml.tpl
 ADD run.sh /run.sh
-RUN chmod +x /*.sh
 
 ENV PRE_CREATE_DB **None**
 ENV SSL_SUPPORT **False**
 ENV SSL_CERT **None**
+
+
+# Add ContainerPilot
+ENV CONTAINERPILOT 2.1.0
+RUN curl -Lo /tmp/cb.tar.gz https://github.com/joyent/containerpilot/releases/download/$CONTAINERPILOT/containerpilot-$CONTAINERPILOT.tar.gz \
+&& tar -xz -f /tmp/cb.tar.gz \
+&& mv ./containerpilot /bin/
+COPY containerpilot.json /etc/containerpilot.json
+COPY start.sh /start.sh
+RUN chmod +x /*.sh
+
+#ENV CONSUL=consul:8500
+ENV CONTAINERPILOT=file:///etc/containerpilot.json
 
 # Admin server WebUI
 EXPOSE 8083
@@ -53,7 +65,7 @@ EXPOSE 8086
 
 VOLUME ["/data"]
 
-CMD ["/run.sh"]
+CMD ["/start.sh"]
 
 LABEL axway_image="influxdb"
 # will be updated whenever there's a new commit
