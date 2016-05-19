@@ -25,7 +25,7 @@ RUN echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories &
     mkdir -p /etc/influxdb /data/influxdb /data/influxdb/meta /data/influxdb/data /var/tmp/influxdb/wal /var/log/influxdb && \
     apk del build-deps && cd / && rm -rf $GOPATH/ /var/cache/apk/*
 
-RUN apk --no-cache add curl
+RUN apk --no-cache add curl bash
 
 ENV ADMIN_USER root
 ENV INFLUXDB_INIT_PWD root
@@ -40,17 +40,20 @@ ENV SSL_CERT **None**
 
 
 # Add ContainerPilot
-ENV CONTAINERPILOT 2.1.0
+ENV CONTAINERPILOT=2.1.0
 RUN curl -Lo /tmp/cb.tar.gz https://github.com/joyent/containerpilot/releases/download/$CONTAINERPILOT/containerpilot-$CONTAINERPILOT.tar.gz \
 && tar -xz -f /tmp/cb.tar.gz \
 && mv ./containerpilot /bin/
 COPY containerpilot.json /etc/containerpilot.json
-COPY start.sh /start.sh
+COPY ./start.sh /start.sh
 RUN chmod +x /*.sh
 
 #ENV CONSUL=consul:8500
 ENV CP_LOG_LEVEL=ERROR
+ENV CP_TTL=20
+ENV CP_POLL=3
 ENV CONTAINERPILOT=file:///etc/containerpilot.json
+ENV DEPENDENCIES="amp-log-agent"
 
 # Admin server WebUI
 EXPOSE 8083
