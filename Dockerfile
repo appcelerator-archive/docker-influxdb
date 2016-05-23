@@ -1,4 +1,4 @@
-FROM appcelerator/alpine:3.3.1
+FROM appcelerator/alpine:3.3.2
 MAINTAINER Nicolas Degory <ndegory@axway.com>
 
 ENV INFLUXDB_VERSION 0.13.0
@@ -34,7 +34,7 @@ ENV SSL_CERT **None**
 ENV CP_SERVICE_NAME=influxdb
 ENV CP_SERVICE_PORT=8086
 ENV CP_SERVICE_BIN=influxd
-ENV CP_DEPENDENCIES='[{"name": "amp-log-agent"}]'
+ENV CP_DEPENDENCIES='[{"name": "amp-log-agent", "onChange": "ignore"}]'
 
 # Admin server WebUI
 EXPOSE 8083
