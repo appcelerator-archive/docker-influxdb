@@ -22,7 +22,7 @@ ENV ADMIN_USER root
 ENV INFLUXDB_INIT_PWD root
 
 ADD types.db /usr/share/collectd/types.db
-ADD config.toml /config/config.toml.tpl
+ADD config.toml /etc/influxdb/config.toml.tpl
 ADD run.sh /run.sh
 
 ENV PRE_CREATE_DB **None**
