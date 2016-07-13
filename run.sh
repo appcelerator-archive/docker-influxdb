@@ -1,6 +1,8 @@
 #!/bin/sh
 
-CONFIG_FILE="/config/config.toml"
+CONFIG_FILE="/etc/influxdb/config.toml"
+CONFIG_OVERRIDE_FILE="/etc/base-config/influxdb/config.toml"
+CONFIG_EXTRA_DIR="/etc/extra-config/influxdb/"
 INFLUX_HOST="localhost"
 INFLUX_API_PORT="8086"
 API_URL="http://${INFLUX_HOST}:${INFLUX_API_PORT}"
@@ -108,30 +110,31 @@ if [ -n "${UDP_PORT}" ]; then
     export CONFIG_UDP_PORT
 fi
 
-if [ -f ${CONFIG_FILE}.tpl ]; then
-    envtpl ${CONFIG_FILE}.tpl
-    if [ $? -ne 0 ]; then
-        echo "unable to generate $CONFIG_FILE"
-        exit 1
-    fi
+if [ -f "${CONFIG_OVERRIDE_FILE}" ]; then
+  echo "Override InfluxDB configuration file"
+  cp "${CONFIG_OVERRIDE_FILE}" "${CONFIG_FILE}"
 else
-    echo "can't find ${CONFIG_FILE}.tpl"
+    if [ -f ${CONFIG_FILE}.tpl ]; then
+        envtpl ${CONFIG_FILE}.tpl
+        if [ $? -ne 0 ]; then
+            echo "unable to generate $CONFIG_FILE"
+            exit 1
+        fi
+    else
+        echo "can't find ${CONFIG_FILE}.tpl"
+    fi
 fi
-if [ ! -f ${CONFIG_FILE} ]; then
+if [ ! -f "${CONFIG_FILE}" ]; then
     echo "can't find ${CONFIG_FILE}"
     exit 1
 fi
 
 
-if [ -f "/data/.init_script_executed" ]; then
+if [ -f "/data/.init_script_executed" && "x$FORCE_INIT" != "xtrue" ]; then
     echo "=> The initialization script had been executed before, skipping ..."
 else
     echo "=> Starting InfluxDB in background ..."
-    if [ -n "${JOIN}" ]; then
-        influxd -config=${CONFIG_FILE} -join ${JOIN} &
-    else
-        influxd -config=${CONFIG_FILE} &
-    fi
+    influxd -config=${CONFIG_FILE} &
 
     wait_for_start_of_influxdb
 
@@ -149,26 +152,25 @@ else
         for x in $arr
         do
             echo "=> Creating database: ${x}"
-            echo "CREATE DATABASE ${x}" >> /tmp/init_script.influxql
+            echo "CREATE DATABASE ${x}" >> /tmp/init.influxql
         done
     fi
 
-    # Execute influxql queries contained inside /init_script.influxql
-    if [ -f "/init_script.influxql" ] || [ -f "/tmp/init_script.influxql" ]; then
+    # Execute influxql queries contained inside $CONFIG_EXTRA_DIR
+    if [ -d "$CONFIG_EXTRA_DIR" ] || [ -f "/tmp/init.influxql" ]; then
         echo "=> About to execute the initialization script"
 
-        if [ -f /init_script.influxql ]; then
-            echo "add provided init script"
-            cat /init_script.influxql >> /tmp/init_script.influxql
-        else
-            echo "no provided init script"
-        fi
+        for f in $(ls $CONFIG_EXTRA_DIR/*.influxql); do
+            echo "add init script $(basename $f)"
+            cat "$f" >> /tmp/init.influxql
+        done
 
         echo "=> Executing the influxql script..."
-        influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN} -password="${PASS}" -import -path /tmp/init_script.influxql
+        influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN} -password="${PASS}" -import -path /tmp/init.influxql
 
         echo "=> Influxql script executed."
         touch "/data/.init_script_executed"
+        rm /tmp/init.influxql
     else
         echo "=> No initialization script need to be executed"
     fi
@@ -181,8 +183,4 @@ else
 fi
 
 echo "=> Starting InfluxDB in foreground ..."
-if [ -n "${JOIN}" ]; then
-    exec influxd -config=${CONFIG_FILE} -join ${JOIN}
-else
-    exec influxd -config=${CONFIG_FILE}
-fi
+exec influxd -config=${CONFIG_FILE}
