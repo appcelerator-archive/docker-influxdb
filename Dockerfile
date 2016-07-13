@@ -42,7 +42,7 @@ EXPOSE 8086
 
 VOLUME ["/data"]
 
-ENTRYPOINT ["/run.sh"]
+ENTRYPOINT ["/amp-pilot"]
 
 LABEL axway_image="influxdb"
 # will be updated whenever there's a new commit
