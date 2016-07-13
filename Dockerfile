@@ -1,11 +1,9 @@
-FROM appcelerator/alpine:3.3.2
+FROM appcelerator/amp:latest
 MAINTAINER Nicolas Degory <ndegory@axway.com>
 
 ENV INFLUXDB_VERSION 0.13.0
 
-RUN echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
-    echo "http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
-    apk update && apk upgrade && \
+RUN apk update && apk upgrade && \
     apk --virtual build-deps add go>1.6 curl git gcc musl-dev make && \
     export GOPATH=/go && \
     go get -v github.com/influxdata/influxdb && \
