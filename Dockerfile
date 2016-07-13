@@ -1,11 +1,9 @@
-FROM appcelerator/alpine:3.3.2
+FROM appcelerator/amp:latest
 MAINTAINER Nicolas Degory <ndegory@axway.com>
 
 ENV INFLUXDB_VERSION 0.13.0
 
-RUN echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
-    echo "http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
-    apk update && apk upgrade && \
+RUN apk update && apk upgrade && \
     apk --virtual build-deps add go>1.6 curl git gcc musl-dev make && \
     export GOPATH=/go && \
     go get -v github.com/influxdata/influxdb && \
@@ -29,12 +27,13 @@ ENV PRE_CREATE_DB **None**
 ENV SSL_SUPPORT **False**
 ENV SSL_CERT **None**
 
-#ENV CONSUL=consul:8500
-# ContainerPilot scripts and configuration
-ENV CP_SERVICE_NAME=influxdb
-ENV CP_SERVICE_PORT=8086
-ENV CP_SERVICE_BIN=influxd
-ENV CP_DEPENDENCIES='[{"name": "amp-log-agent", "onChange": "ignore"}]'
+# amp-pilot configuration
+ENV SERVICE_NAME=influxdb
+ENV AMPPILOT_REGISTEREDPORT=8086
+ENV AMPPILOT_LAUNCH_CMD=/run.sh
+ENV DEPENDENCIES="amp-log-agent"
+ENV AMPPILOT_AMPLOGAGENT_ONLYATSTARTUP=true
+
 
 # Admin server WebUI
 EXPOSE 8083
@@ -43,7 +42,7 @@ EXPOSE 8086
 
 VOLUME ["/data"]
 
-CMD ["/start.sh"]
+ENTRYPOINT ["/run.sh"]
 
 LABEL axway_image="influxdb"
 # will be updated whenever there's a new commit
