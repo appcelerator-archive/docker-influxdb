@@ -30,7 +30,7 @@ ENV SSL_CERT **None**
 # amp-pilot configuration
 ENV SERVICE_NAME=influxdb
 ENV AMPPILOT_REGISTEREDPORT=8086
-ENV AMPPILOT_LAUNCH_CMD=/run.sh
+ENV AMPPILOT_LAUNCH_CMD="/bin/influxd"
 ENV DEPENDENCIES="amp-log-agent"
 ENV AMPPILOT_AMPLOGAGENT_ONLYATSTARTUP=true
 
@@ -42,7 +42,8 @@ EXPOSE 8086
 
 VOLUME ["/data"]
 
-ENTRYPOINT ["/amp-pilot"]
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["/run.sh"]
 
 LABEL axway_image="influxdb"
 # will be updated whenever there's a new commit
