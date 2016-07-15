@@ -186,7 +186,7 @@ fi
 echo "=> Starting InfluxDB in foreground ..."
 CMD="influxd"
 CMDARGS="-config=${CONFIG_FILE}"
-export AMP_LAUNCH_CMD="$CMD $CMDARGS"
+export AMPPILOT_LAUNCH_CMD="$CMD $CMDARGS"
 if [[ -n "$CONSUL" && -n "$PILOT" ]]; then
     echo "registering in Consul with $PILOT"
     exec "$PILOT" "$CMD" $CMDARGS
