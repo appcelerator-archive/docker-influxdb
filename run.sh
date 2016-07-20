@@ -111,6 +111,23 @@ if [ -n "${UDP_PORT}" ]; then
     export CONFIG_UDP_PORT
 fi
 
+if [[ -n "$CONFIG_ARCHIVE_URL" ]]; then
+  echo "INFO - Download configuration archive file $CONFIG_ARCHIVE_URL..."
+  curl -L "$CONFIG_ARCHIVE_URL" -o /tmp/config.tgz
+  if [[ $? -eq 0 ]]; then
+    tmpd=$(mktemp -d)
+    gunzip -c /tmp/config.tgz | tar xf - -C $tmpd
+    echo "INFO - Overriding configuration file:"
+    find $tmpd/*/base-config/influxdb 2>/dev/null
+    echo "INFO - Extra configuration file:"
+    find $tmpd/*/extra-config/influxdb 2>/dev/null
+    mv $tmpd/*/extra-config $tmpd/*/base-config /etc/ 2>/dev/null
+    rm -rf /tmp/config.tgz "$tmpd"
+  else
+    echo "WARN - download failed, ignore"
+  fi
+fi
+
 if [ -f "${CONFIG_OVERRIDE_FILE}" ]; then
   echo "INFO - Override InfluxDB configuration file"
   cp "${CONFIG_OVERRIDE_FILE}" "${CONFIG_FILE}"

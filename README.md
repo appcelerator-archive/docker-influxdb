@@ -17,12 +17,6 @@ You can now push new image to the registry:
 
     docker push appcelerator/influxdb
 
-Tags
-----
-
-    appcelerator/influxdb:latest
-    appcelerator/influxdb:0.12    -> influxdb 0.12.2
-    appcelerator/influxdb:0.13    -> influxdb 0.13.0
 
 Running your InfluxDB image
 ---------------------------
@@ -43,11 +37,11 @@ Use `-e PRE_CREATE_DB="db1;db2;db3"` to create database named "db1", "db2", and 
 
 Initially execute influxql script 
 ---------------------------------
-Use `-v /tmp/init_script.influxql:init_script.influxql:ro` if you want that script to been executed on the first time the container starts automatically. Each influxql command on separated line. For example:
+Use `-v /tmp/init_script.influxql:/etc/extra-config/influxdb/init.influxql:ro` if you want that script to been executed on the first time the container starts automatically. Each influxql command on separated line. For example:
 
 - Docker run command
 ```
-docker run -d -p 8083:8083 -p 8086:8086 -e ADMIN_USER="root" -e INFLUXDB_INIT_PWD="somepassword" -v /tmp/init_script.influxql:init_script.influxql:ro appcelerator/influxdb:latest
+docker run -d -p 8083:8083 -p 8086:8086 -e ADMIN_USER="root" -e INFLUXDB_INIT_PWD="somepassword" -v /tmp/init_script.influxql:/etc/extra-config/influxdb/init_script.influxql:ro appcelerator/influxdb:latest
 ```
 
 - The influxdb script
@@ -59,9 +53,22 @@ GRANT WRITE ON mydb TO writer
 GRANT READ ON mydb TO reader
 ```
 
-Container pilot
+Any script found in /etc/extra-config/influxdb/ will be loaded at start.
+
+An other way to load default configuration is to download a tarball archive from a public site. Use the CONFIG_ARCHIVE_URL for that:
+
+```
+docker run -d -p 8083:8083 -p 8086:8086 -e CONFIG_ARCHIVE_URL=https://download.example.com/config/influxdb.tgz appcelerator/influxdb:latest
+```
+
+The archive should contain under a top directory one or both directory:
+- base-config/influxdb
+- extra-config/influxdb
+
+amp-pilot
 ---------------
 
-To enable container pilot, specify the Consul URL:
+To enable amp-pilot, specify the Consul URL:
 
 ```docker run -d -p 8083:8083 -p 8086:8086 -e CONSUL=consul:8500 appcelerator/influxdb```
+
