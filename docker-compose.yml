@@ -1,0 +1,45 @@
+version: "2"
+services:
+  consul:
+    image: appcelerator/consul:latest-server
+    hostname: consul
+    ports:
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:53/udp"
+    command:
+      [ "-bootstrap"]
+
+  sut:
+    image: local/sut
+    build:
+      context: ./sut
+      dockerfile: Dockerfile
+
+  telegraf:
+    image: appcelerator/telegraf:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/utmp:/var/run/utmp
+    environment:
+      CONSUL: consul:8500
+      OUTPUT_INFLUXDB_ENABLED: "true"
+      INFLUXDB_URL: "http://influxdb:8086"
+      INPUT_DOCKER_ENABLED: "true"
+      DEPENDENCIES: "influxdb"
+    labels:
+      - "ServiceUUId=system.telegraf"
+
+  influxdb:
+    image: appcelerator/influxdb:latest
+    ports:
+      - "8086:8086"
+      - "8083:8083"
+    environment:
+      FORCE_HOSTNAME: auto
+      CONFIG_ARCHIVE_URL: "https://github.com/appcelerator/amp-config/archive/0.1.0.tar.gz"
+      CONSUL: consul:8500
+      PRE_CREATE_DB: "telegraf"
+      DEPENDENCIES: ""
+    labels:
+      - "ServiceUUId=system.influxdb"
