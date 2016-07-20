@@ -20,10 +20,4 @@ if [[ "x$r" != "xtrue" ]]; then
   exit 1
 fi
 
-r=$(curl -GET "http://$INFLUXDB_HOST:8086/query?pretty=true" --data-urlencode "db=telegraf" --data-urlencode "q=SELECT usage_total FROM docker_container_cpuu limit 1" 2>/dev/null | jq -r '.results[0] | has("series")')
-if [[ "x$r" != "xtrue" ]]; then
-  echo "Influxdb telegraf db has no measurements"
-  exit 1
-fi
-
 echo "all tests are OK"
