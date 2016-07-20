@@ -1,10 +1,12 @@
 version: '2'
 services:
   consul:
+    container_name: consul
     extends:
       file: docker-compose.yml
       service: consul
   telegraf:
+    container_name: telegraf
     extends:
       file: docker-compose.yml
       service: telegraf
@@ -12,6 +14,7 @@ services:
       - consul
       - influxdb
   influxdb:
+    container_name: influxdb
     extends:
       file: docker-compose.yml
       service: influxdb
