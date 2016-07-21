@@ -1,7 +1,7 @@
 version: "2"
 services:
   consul:
-    image: appcelerator/consul:${CONSUL_TAG}
+    image: appcelerator/consul:latest-server
     hostname: consul
     ports:
       - "8400:8400"
@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
 
   telegraf:
-    image: appcelerator/telegraf:${TELEGRAF_TAG}
+    image: appcelerator/telegraf:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/run/utmp:/var/run/utmp
@@ -31,7 +31,7 @@ services:
       - "ServiceUUId=system.telegraf"
 
   influxdb:
-    image: appcelerator/influxdb:${INFLUXDB_TAG}
+    image: appcelerator/influxdb:latest
     ports:
       - "8086:8086"
       - "8083:8083"
