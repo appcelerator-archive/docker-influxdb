@@ -23,6 +23,7 @@ services:
       DEPENDENCIES: "influxdb"
     labels:
       - "ServiceUUId=system.telegraf"
+      - "io.appcelerator.amp.build.mounts=/var/run/docker.sock,/var/run/utmp"
 
   influxdb:
     image: appcelerator/influxdb
