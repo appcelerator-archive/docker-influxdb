@@ -22,9 +22,8 @@ services:
     depends_on:
       - consul
   sut:
-    extends:
-      file: docker-compose.yml
-      service: sut
+    image: appcelerator/sut
+    build: ./sut
     depends_on:
       - telegraf
       - influxdb
