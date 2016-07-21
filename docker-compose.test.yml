@@ -1,30 +1,34 @@
 version: '2'
 services:
-  consul:
-    extends:
-      file: docker-compose.yml
-      service: consul
   telegraf:
-    extends:
-      file: docker-compose.yml
-      service: telegraf
+    image: appcelerator/telegraf:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/utmp:/var/run/utmp
     environment:
+      OUTPUT_INFLUXDB_ENABLED: "true"
+      INFLUXDB_URL: "http://influxdb:8086"
+      INPUT_DOCKER_ENABLED: "true"
       INTERVAL: 3s
       FLUSH_INTERVAL: 3s
       FLUSH_JITTER: 0.2s
-    depends_on:
-      - consul
-      - influxdb
+    labels:
+      - "ServiceUUId=system.telegraf"
+      - "io.appcelerator.amp.build.mounts=/var/run/docker.sock,/var/run/utmp"
   influxdb:
-    extends:
-      file: docker-compose.yml
-      service: influxdb
-    depends_on:
-      - consul
+    image: appcelerator/influxdb
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8086:8086"
+      - "8083:8083"
+    environment:
+      FORCE_HOSTNAME: auto
+      CONFIG_ARCHIVE_URL: "https://github.com/appcelerator/amp-config/archive/0.1.0.tar.gz"
+      PRE_CREATE_DB: "telegraf"
+    labels:
+      - "ServiceUUId=system.influxdb"
   sut:
-    extends:
-      file: docker-compose.yml
-      service: sut
-    depends_on:
-      - telegraf
-      - influxdb
+    image: appcelerator/sut
+    build: ./sut
