@@ -31,7 +31,10 @@ services:
       - "ServiceUUId=system.telegraf"
 
   influxdb:
-    image: appcelerator/influxdb:latest
+    image: local/influxdb
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8086:8086"
       - "8083:8083"
