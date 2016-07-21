@@ -8,6 +8,10 @@ services:
     extends:
       file: docker-compose.yml
       service: telegraf
+    environment:
+      INTERVAL: 3s
+      FLUSH_INTERVAL: 3s
+      FLUSH_JITTER: 0.2s
     depends_on:
       - consul
       - influxdb
