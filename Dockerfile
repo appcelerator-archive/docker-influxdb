@@ -9,10 +9,11 @@ RUN apk update && apk upgrade && \
     go get -v github.com/influxdata/influxdb && \
     cd $GOPATH/src/github.com/influxdata/influxdb && \
     git checkout -q --detach "v${INFLUXDB_VERSION}" && \
-    go get -v ./... && \
-    go install -v ./... && \
-    chmod +x $GOPATH/bin/* && \
-    mv $GOPATH/bin/* /bin/ && \
+    #go get -v ./... && \
+    #go install -v ./... && \
+    python ./build.py && \
+    chmod +x ./build/influx* && \
+    mv ./build/influx* /bin/ && \
     mkdir -p /etc/influxdb /data/influxdb /data/influxdb/meta /data/influxdb/data /var/tmp/influxdb/wal /var/log/influxdb && \
     apk del build-deps && cd / && rm -rf $GOPATH/ /var/cache/apk/*
 
