@@ -206,8 +206,6 @@ CMDARGS="-config=${CONFIG_FILE}"
 export AMPPILOT_LAUNCH_CMD="$CMD $CMDARGS"
 if [[ -n "$CONSUL" && -x "$PILOT" ]]; then
     echo "registering in Consul with $PILOT"
-    # set variable to make sure amp-pilot won't define the command by itself
-    AMPPILOT_STANDALONE=1
     exec "$PILOT"
 else
     exec "$CMD" $CMDARGS
