@@ -40,6 +40,7 @@ services:
     labels:
       - "ServiceUUId=system.telegraf"
       - "io.appcelerator.amp.build.mounts=/var/run/docker.sock,/var/run/utmp"
+      - "io.appcelerator.amp.build.mounts=/bin/amppilot/amp-pilot.alpine,/bin/amp-pilot"
 
   influxdb:
     image: appcelerator/influxdb
