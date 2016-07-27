@@ -60,4 +60,4 @@ services:
       DEPENDENCIES: ""
     labels:
       - "ServiceUUId=system.influxdb"
-      - "io.appcelerator.amp.build.mounts=/bin/amppilot/amp-pilot.alpine:/bin/amp-pilot"
+      - "io.appcelerator.amp.build.mounts=/bin/amppilot/amp-pilot.alpine,/bin/amp-pilot"
