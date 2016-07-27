@@ -1,4 +1,4 @@
-FROM appcelerator/amp:latest
+FROM appcelerator/alpine:20160726
 MAINTAINER Nicolas Degory <ndegory@axway.com>
 
 ENV INFLUXDB_VERSION 0.13.0
@@ -9,8 +9,6 @@ RUN apk update && apk upgrade && \
     go get -v github.com/influxdata/influxdb && \
     cd $GOPATH/src/github.com/influxdata/influxdb && \
     git checkout -q --detach "v${INFLUXDB_VERSION}" && \
-    #go get -v ./... && \
-    #go install -v ./... && \
     python ./build.py && \
     chmod +x ./build/influx* && \
     mv ./build/influx* /bin/ && \
