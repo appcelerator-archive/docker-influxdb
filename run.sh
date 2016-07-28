@@ -204,10 +204,9 @@ echo "=> Starting InfluxDB in foreground ..."
 CMD="influxd"
 CMDARGS="-config=${CONFIG_FILE}"
 export AMPPILOT_LAUNCH_CMD="$CMD $CMDARGS"
-if [[ -n "$CONSUL" && -n "$PILOT" ]]; then
+if [[ -n "$CONSUL" && -x "$PILOT" ]]; then
     echo "registering in Consul with $PILOT"
-    exec "$PILOT" "$CMD" $CMDARGS
+    exec "$PILOT"
 else
-    echo "not registering in Consul"
     exec "$CMD" $CMDARGS
 fi
