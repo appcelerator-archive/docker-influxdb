@@ -68,7 +68,7 @@ The archive should contain under a top directory one or both directory:
 amp-pilot
 ---------------
 
-To enable amp-pilot, specify the Consul URL, and mount the amp-pilot in /bin/amp-pilot:
+To enable amp-pilot, specify the Consul URL, and mount the amp-pilot in /bin/amppilot/amp-pilot.alpine:
 
-```docker run -d -p 8083:8083 -p 8086:8086 -e CONSUL=consul:8500 -v /bin/amppilot/amp-pilot.alpine:/bin/amp-pilot:ro appcelerator/influxdb```
+```docker run -d -p 8083:8083 -p 8086:8086 -e CONSUL=consul:8500 -v /bin/amppilot:/bin/amppilot/amp-pilot.alpine:ro appcelerator/influxdb```
 

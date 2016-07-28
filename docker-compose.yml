@@ -22,6 +22,8 @@ services:
       - /bin/amppilot:/bin/amppilot
     environment:
       CONSUL: consul:8500
+    labels:
+      - "io.appcelerator.amp.build.mounts=/bin/amppilot"
     
 
   telegraf:
@@ -29,7 +31,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/run/utmp:/var/run/utmp:ro
-      - /bin/amppilot/amp-pilot.alpine:/bin/amp-pilot:ro
+      - /bin/amppilot:/bin/amppilot:ro
     environment:
       CONSUL: consul:8500
       AMPPILOT_KAFKA: ""
@@ -39,7 +41,7 @@ services:
       DEPENDENCIES: "influxdb"
     labels:
       - "ServiceUUId=system.telegraf"
-      - "io.appcelerator.amp.build.mounts=/var/run/docker.sock,/var/run/utmp,/bin/amppilot/amp-pilot.alpine:/bin/amp-pilot"
+      - "io.appcelerator.amp.build.mounts=/var/run/docker.sock,/var/run/utmp,/bin/amppilot"
 
   influxdb:
     image: appcelerator/influxdb
@@ -50,7 +52,7 @@ services:
       - "8086:8086"
       - "8083:8083"
     volumes:
-      - /bin/amppilot/amp-pilot.alpine:/bin/amp-pilot:ro
+      - /bin/amppilot:/bin/amppilot:ro
     environment:
       FORCE_HOSTNAME: auto
       CONFIG_ARCHIVE_URL: "https://github.com/appcelerator/amp-config/archive/0.1.0.tar.gz"
@@ -60,4 +62,4 @@ services:
       DEPENDENCIES: ""
     labels:
       - "ServiceUUId=system.influxdb"
-      - "io.appcelerator.amp.build.mounts=/bin/amppilot/amp-pilot.alpine:/bin/amp-pilot"
+      - "io.appcelerator.amp.build.mounts=/bin/amppilot"
