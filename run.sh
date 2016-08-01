@@ -16,7 +16,7 @@ wait_for_start_of_influxdb(){
     while ! curl ${API_URL}/ping 2>/dev/null; do
         retry=$((retry+1))
         if [ $retry -gt 15 ]; then
-            echo "\nERROR: unable to start grafana"
+            echo "\nERROR: unable to start influxdb"
             exit 1
         fi
         echo -n "."
@@ -42,6 +42,7 @@ if [ -n "${FORCE_HOSTNAME}" ]; then
         CONFIG_HOSTNAME="$FORCE_HOSTNAME"
     fi
     export CONFIG_HOSTNAME
+    echo "INFO - Influxdb hostname will be set to $CONFIG_HOSTNAME"
 fi
 
 if [ "${PRE_CREATE_DB}" == "**None**" ]; then
