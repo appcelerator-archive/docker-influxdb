@@ -4,9 +4,9 @@ INFLUXDB_HOST=${INFLUXDB_HOST:-influxdb}
 
 echo -n "test Influxdb Availability... "
 # give time to influxdb to be up
-r="false"
+r=1
 i=0
-while [[ "x$r" != "xtrue" ]]; do
+while [[ $r -ne 0 ]]; do
   sleep 1
   curl -I $INFLUXDB_HOST:8083 2>/dev/null | grep -q "HTTP/1.1 200 OK"
   r=$?
@@ -39,7 +39,7 @@ while [[ "x$r" != "xtrue" ]]; do
   sleep 1
   r=$(curl -GET "http://$INFLUXDB_HOST:8086/query" --data-urlencode "db=telegraf" --data-urlencode "q=SHOW MEASUREMENTS" 2>/dev/null | jq -r '.results[0] | has("series")')
   ((i++))
-  if [[ $i -gt 20 ]]; then break; fi
+  if [[ $i -gt 30 ]]; then break; fi
   echo -n "+"
 done
 if [[ "x$r" != "xtrue" ]]; then
