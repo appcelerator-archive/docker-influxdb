@@ -17,6 +17,8 @@ wait_for_start_of_influxdb(){
         retry=$((retry+1))
         if [ $retry -gt 15 ]; then
             echo "\nERROR: unable to start influxdb"
+            echo "Configuration file was:"
+            cat $CONFIG_FILE
             exit 1
         fi
         echo -n "."
