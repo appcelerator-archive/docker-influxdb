@@ -4,7 +4,7 @@ CONFIG_FILE="/etc/influxdb/config.toml"
 CONFIG_OVERRIDE_FILE="/etc/base-config/influxdb/config.toml"
 CONFIG_EXTRA_DIR="/etc/extra-config/influxdb/"
 INFLUX_HOST="localhost"
-INFLUX_API_PORT="8086"
+INFLUX_API_PORT="8186"
 API_URL="http://${INFLUX_HOST}:${INFLUX_API_PORT}"
 ADMIN=${ADMIN_USER:-root}
 PASS=${INFLUXDB_INIT_PWD:-root}
@@ -153,7 +153,8 @@ if [[ -f "/data/.init_script_executed" && "x$FORCE_INIT" != "xtrue" ]]; then
     echo "=> The initialization script had been executed before, skipping ..."
 else
     echo "=> Starting InfluxDB in background ..."
-    influxd -config=${CONFIG_FILE} &
+    cat "$CONFIG_FILE" | sed -e 's/:808\([0-9]\)/:818\1/' > "$CONFIG_FILE".preconf
+    influxd -config=${CONFIG_FILE}.preconf &
 
     wait_for_start_of_influxdb
 
