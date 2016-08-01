@@ -38,7 +38,7 @@ export CONFIG_MAX_OPEN_SHARDS
 if [ -n "${FORCE_HOSTNAME}" ]; then
     if [ "${FORCE_HOSTNAME}" = "auto" ]; then
         #set hostname with IPv4 eth0
-        HOSTIPNAME=$(ip a show dev eth0 | grep inet | grep eth0 | sed -e 's/^.*inet.//g' -e 's/\/.*$//g')
+        HOSTIPNAME=$(ip a show dev eth0 | grep inet | grep eth0 | tail -1 | sed -e 's/^.*inet.//g' -e 's/\/.*$//g')
         CONFIG_HOSTNAME="$HOSTIPNAME"
     else
         CONFIG_HOSTNAME="$FORCE_HOSTNAME"
