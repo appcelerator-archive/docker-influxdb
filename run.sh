@@ -220,6 +220,8 @@ fi
 if [[ -n "$CONSUL" && -x "$PILOT" ]]; then
     echo "registering in Consul with $PILOT"
     export AMPPILOT_LAUNCH_CMD="$CMD $CMDARGS"
+    export SERVICE_NAME=influxdb
+    export AMPPILOT_REGISTEREDPORT=8086
     exec "$PILOT"
 else
     exec "$CMD" $CMDARGS
