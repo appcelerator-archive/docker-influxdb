@@ -2,12 +2,12 @@
 
 INFLUXDB_HOST=${INFLUXDB_HOST:-influxdb}
 
-echo -n "test 1... "
+echo -n "test Influxdb Availability... "
 # give time to influxdb to be up
 r="false"
 i=0
 while [[ "x$r" != "xtrue" ]]; do
-  sleep 1
+  sleep 2
   curl -I $INFLUXDB_HOST:8083 2>/dev/null | grep -q "HTTP/1.1 200 OK"
   r=$?
   ((i++))
@@ -22,7 +22,7 @@ if [[ $r -ne 0 ]]; then
 fi
 echo " [OK]"
 
-echo -n "test 2... "
+echo -n "test Influxdb ping... "
 curl -I $INFLUXDB_HOST:8086/ping 2>/dev/null | grep -q "HTTP/1.1 204 No Content"
 if [[ $? -ne 0 ]]; then
   echo
@@ -31,7 +31,7 @@ if [[ $? -ne 0 ]]; then
 fi
 echo "[OK]"
 
-echo -n "test 3... "
+echo -n "test measurements presence... "
 r="false"
 i=0
 # give time to telegraf to send data
@@ -50,7 +50,7 @@ if [[ "x$r" != "xtrue" ]]; then
 fi
 echo " [OK]"
 
-echo -n "test 4... "
+echo -n "test Docker cpu measurement presence... "
 r=$(curl -GET "http://$INFLUXDB_HOST:8086/query" --data-urlencode "db=telegraf" --data-urlencode "q=SELECT usage_total FROM docker_container_cpu limit 1" 2>/dev/null | jq -r '.results[0] | has("series")')
 if [[ "x$r" != "xtrue" ]]; then
   echo
