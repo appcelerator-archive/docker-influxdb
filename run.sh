@@ -42,6 +42,7 @@ if [ -n "${FORCE_HOSTNAME}" ]; then
         CONFIG_HOSTNAME="$FORCE_HOSTNAME"
     fi
     export CONFIG_HOSTNAME
+    echo "INFO - Influxdb hostname will be set to $CONFIG_HOSTNAME"
 fi
 
 if [ "${PRE_CREATE_DB}" == "**None**" ]; then
