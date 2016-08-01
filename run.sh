@@ -17,6 +17,8 @@ wait_for_start_of_influxdb(){
         retry=$((retry+1))
         if [ $retry -gt 15 ]; then
             echo "\nERROR: unable to start influxdb"
+            echo "Configuration file was:"
+            cat $CONFIG_FILE
             exit 1
         fi
         echo -n "."
@@ -220,6 +222,8 @@ fi
 if [[ -n "$CONSUL" && -x "$PILOT" ]]; then
     echo "registering in Consul with $PILOT"
     export AMPPILOT_LAUNCH_CMD="$CMD $CMDARGS"
+    export SERVICE_NAME=influxdb
+    export AMPPILOT_REGISTEREDPORT=8086
     exec "$PILOT"
 else
     exec "$CMD" $CMDARGS
