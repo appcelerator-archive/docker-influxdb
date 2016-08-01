@@ -4,15 +4,23 @@ INFLUXDB_HOST=${INFLUXDB_HOST:-influxdb}
 
 echo -n "test 1... "
 # give time to influxdb to be up
-sleep 2
-curl -I $INFLUXDB_HOST:8083 2>/dev/null | grep -q "HTTP/1.1 200 OK"
-if [[ $? -ne 0 ]]; then
+r="false"
+i=0
+while [[ "x$r" != "xtrue" ]]; do
+  sleep 1
+  curl -I $INFLUXDB_HOST:8083 2>/dev/null | grep -q "HTTP/1.1 200 OK"
+  r=$?
+  ((i++))
+  if [[ $i -gt 20 ]]; then break; fi
+  echo -n "+"
+done
+if [[ $r -ne 0 ]]; then
   echo
   echo "Influxdb:8083 failed"
   curl -I $INFLUXDB_HOST:8083
   exit 1
 fi
-echo "[OK]"
+echo " [OK]"
 
 echo -n "test 2... "
 curl -I $INFLUXDB_HOST:8086/ping 2>/dev/null | grep -q "HTTP/1.1 204 No Content"
@@ -32,6 +40,7 @@ while [[ "x$r" != "xtrue" ]]; do
   r=$(curl -GET "http://$INFLUXDB_HOST:8086/query" --data-urlencode "db=telegraf" --data-urlencode "q=SHOW MEASUREMENTS" 2>/dev/null | jq -r '.results[0] | has("series")')
   ((i++))
   if [[ $i -gt 20 ]]; then break; fi
+  echo -n "+"
 done
 if [[ "x$r" != "xtrue" ]]; then
   echo
@@ -39,7 +48,7 @@ if [[ "x$r" != "xtrue" ]]; then
   curl -GET "http://$INFLUXDB_HOST:8086/query" --data-urlencode "db=telegraf" --data-urlencode "q=SHOW MEASUREMENTS"
   exit 1
 fi
-echo "[OK]"
+echo " [OK]"
 
 echo -n "test 4... "
 r=$(curl -GET "http://$INFLUXDB_HOST:8086/query" --data-urlencode "db=telegraf" --data-urlencode "q=SELECT usage_total FROM docker_container_cpu limit 1" 2>/dev/null | jq -r '.results[0] | has("series")')
