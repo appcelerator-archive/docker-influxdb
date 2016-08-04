@@ -36,6 +36,8 @@ VOLUME ["/data"]
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["/run.sh"]
 
+HEALTHCHECK --interval=5s --retries=3 --timeout=1s CMD curl -sI localhost:8086/ping | grep -q "204 No Content"
+
 LABEL axway_image="influxdb"
 # will be updated whenever there's a new commit
 LABEL commit=${GIT_COMMIT}
