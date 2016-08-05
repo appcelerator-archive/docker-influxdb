@@ -1,19 +1,12 @@
 version: '2'
 services:
-  consul:
-    extends:
-      file: docker-compose.yml
-      service: consul
   telegraf:
     extends:
       file: docker-compose.yml
       service: telegraf
     depends_on:
-      - consul
       - influxdb
   influxdb:
     extends:
       file: docker-compose.yml
       service: influxdb
-    depends_on:
-      - consul
