@@ -1,47 +1,23 @@
 version: "2"
 services:
-  consul:
-    image: appcelerator/consul:latest-server
-    hostname: consul
-    ports:
-      - "8400:8400"
-      - "8500:8500"
-      - "8600:53/udp"
-    command:
-      [ "-bootstrap"]
-
   sut:
     image: appcelerator/sut
     build:
       context: ./sut
       dockerfile: Dockerfile
 
-  pilot:
-    image: appcelerator/amp-pilot:latest
-    volumes:
-      - /bin/amppilot:/bin/amppilot
-    environment:
-      CONSUL: consul:8500
-    labels:
-      - "io.appcelerator.amp.build.mounts=/bin/amppilot"
-    
-
   telegraf:
     image: appcelerator/telegraf:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/run/utmp:/var/run/utmp:ro
-      - /bin/amppilot:/bin/amppilot:ro
     environment:
-      CONSUL: consul:8500
-      AMPPILOT_KAFKA: ""
       OUTPUT_INFLUXDB_ENABLED: "true"
       INFLUXDB_URL: "http://influxdb:8086"
       INPUT_DOCKER_ENABLED: "true"
-      DEPENDENCIES: "influxdb"
     labels:
       - "ServiceUUId=system.telegraf"
-      - "io.appcelerator.amp.build.mounts=/var/run/docker.sock,/var/run/utmp,/bin/amppilot"
+      - "io.appcelerator.amp.build.mounts=/var/run/docker.sock,/var/run/utmp"
 
   influxdb:
     image: appcelerator/influxdb
@@ -51,15 +27,7 @@ services:
     ports:
       - "8086:8086"
       - "8083:8083"
-    volumes:
-      - /bin/amppilot:/bin/amppilot:ro
     environment:
       FORCE_HOSTNAME: auto
       CONFIG_ARCHIVE_URL: "https://github.com/appcelerator/amp-config/archive/0.1.0.tar.gz"
       PRE_CREATE_DB: "telegraf"
-      AMPPILOT_KAFKA: ""
-      CONSUL: consul:8500
-      DEPENDENCIES: ""
-    labels:
-      - "ServiceUUId=system.influxdb"
-      - "io.appcelerator.amp.build.mounts=/bin/amppilot"

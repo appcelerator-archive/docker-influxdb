@@ -8,7 +8,6 @@ INFLUX_API_PORT="8186"
 API_URL="http://${INFLUX_HOST}:${INFLUX_API_PORT}"
 ADMIN=${ADMIN_USER:-root}
 PASS=${INFLUXDB_INIT_PWD:-root}
-PILOT="/bin/amppilot/amp-pilot.alpine"
 
 wait_for_start_of_influxdb(){
     #wait for the startup of influxdb
@@ -207,24 +206,4 @@ fi
 echo "=> Starting InfluxDB in foreground ..."
 CMD="influxd"
 CMDARGS="-config=${CONFIG_FILE}"
-if [[ -n "$CONSUL" ]]; then
-    i=0
-    while [[ ! -x "$PILOT" ]]; do
-        echo "WARNING - amp-pilot is not yet available, try again..."
-        sleep 1
-        ((i++))
-        if [[ $i -ge 20 ]]; then
-            echo "ERROR - can't find amp-pilot, abort"
-            exit 1
-        fi
-    done
-fi
-if [[ -n "$CONSUL" && -x "$PILOT" ]]; then
-    echo "registering in Consul with $PILOT"
-    export AMPPILOT_LAUNCH_CMD="$CMD $CMDARGS"
-    export SERVICE_NAME=influxdb
-    export AMPPILOT_REGISTEREDPORT=8086
-    exec "$PILOT"
-else
-    exec "$CMD" $CMDARGS
-fi
+exec "$CMD" $CMDARGS
