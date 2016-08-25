@@ -29,5 +29,5 @@ services:
       - "8083:8083"
     environment:
       FORCE_HOSTNAME: auto
-      CONFIG_ARCHIVE_URL: "https://github.com/appcelerator/amp-config/archive/0.1.0.tar.gz"
+      CONFIG_ARCHIVE_URL: "https://github.com/appcelerator/amp-config/archive/0.2.0.tar.gz"
       PRE_CREATE_DB: "telegraf"

@@ -1,13 +1,14 @@
 ### Welcome to the InfluxDB configuration file.
 
-# Once every 24 hours InfluxDB will report anonymous data to m.influxdb.com
-# The data includes raft id (random 8 bytes), os, arch, version, and metadata.
-# We don't track ip addresses of servers reporting. This is only used
-# to track the number of instances running and the versions, which
-# is very helpful for us.
+# Once every 24 hours InfluxDB will report usage data to usage.influxdata.com
+# The data includes a random ID, os, arch, version, the number of series and other
+# usage data. No data from user databases is ever transmitted.
 # Change this option to true to disable reporting.
 reporting-disabled = true
 
+# we'll try to get the hostname automatically, but if it the os returns something
+# that isn't resolvable by other servers in the cluster, use this option to
+# manually set the hostname
 hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
 ###
 ### [meta]
@@ -17,16 +18,11 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
 ###
 
 [meta]
-  # Controls if this node should run the metaservice and participate in the Raft group
-  enabled = true
-
+  # Where the metadata/raft database is stored
   dir = "/data/meta"
-  bind-address = ":8088"
+
   retention-autocreate = true
-  election-timeout = "1s"
-  heartbeat-timeout = "1s"
-  leader-lease-timeout = "500ms"
-  commit-timeout = "50ms"
+  default-retention-policy-name = "default"
   # If log messages are printed for the meta service
   logging-enabled = true
   pprof-enabled = false
@@ -46,18 +42,17 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
 [data]
   # Controls if this node holds time series data shards in the cluster
   enabled = true
-  dir = "/data/db"
 
-  # The following WAL settings are for the b1 storage engine used in 0.9.2. They won't
-  # apply to any new shards created after upgrading to a version > 0.9.3.
-  max-wal-size = 104857600 # Maximum size the WAL can reach before a flush. Defaults to 100MB.
-  wal-flush-interval = "10m0s" # Maximum time data can sit in WAL before a flush.
-  wal-partition-flush-delay = "2s" # The delay time between each WAL partition being flushed.
+  dir = "/data/db"
 
   # These are the WAL settings for the storage engine >= 0.9.3
   wal-dir = "/data/wal"
   wal-logging-enabled = true
   data-logging-enabled = true
+  
+  # Trace logging provides more verbose output around the tsm engine. Turning 
+  # this on can provide more useful output for debugging tsm engine issues.
+  # trace-logging-enabled = false
 
   # Whether queries should be logged before execution. Very useful for troubleshooting, but will
   # log any sensitive data contained within a query.
@@ -89,24 +84,23 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
 
   # MaxPointsPerBlock is the maximum number of points in an encoded
   # block in a TSM file. Larger numbers may yield better compression
-  # but could incur a performance peanalty when querying
+  # but could incur a performance penalty when querying
   # max-points-per-block = 1000
 
 ###
-### [cluster]
+### [coordinator]
 ###
-### Controls non-Raft cluster behavior, which generally includes how data is
-### shared across shards.
+### Controls the clustering service configuration.
 ###
 
-[cluster]
-  shard-writer-timeout = "5s" # The time within which a remote shard must respond to a write request.
-  write-timeout = "10s" # The time within which a write request must complete on the cluster.
-  max-concurrent-queries = 0 # The maximum number of concurrent queries that can run. 0 to disable.
-  query-timeout = "0s" # The time within a query must complete before being killed automatically. 0s to disable.
-  max-select-point = 0 # The maximum number of points to scan in a query. 0 to disable.
-  max-select-series = 0 # The maximum number of series to select in a query. 0 to disable.
-  max-select-buckets = 0 # The maximum number of buckets to select in an aggregate query. 0 to disable.
+[coordinator]
+  write-timeout = "10s"
+  max-concurrent-queries = 0
+  query-timeout = "0"
+  log-queries-after = "0"
+  max-select-point = 0
+  max-select-series = 0
+  max-select-buckets = 0
 
 ###
 ### [retention]
@@ -116,7 +110,7 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
 
 [retention]
   enabled = true
-  check-interval = "10m0s"
+  check-interval = "30m"
 
 ###
 ### [shard-precreation]
@@ -130,6 +124,20 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
   enabled = true
   check-interval = "10m"
   advance-period = "30m"
+
+###
+### Controls the system self-monitoring, statistics and diagnostics.
+###
+### The internal database for monitoring data is created automatically if
+### if it does not already exist. The target retention within this database
+### is called 'monitor' and is also created with a retention period of 7 days
+### and a replication factor of 1, if it does not exist. In all cases the
+### this retention policy is configured as the default for the database.
+
+[monitor]
+  store-enabled = true # Whether to record statistics internally.
+  store-database = "_internal" # The destination database for recorded statistics
+  store-interval = "10s" # The interval at which to record statistics
 
 ###
 ### [admin]
@@ -160,7 +168,22 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
   pprof-enabled = false
   https-enabled = false
   https-certificate = "/etc/ssl/influxdb.pem"
+  ### Use a separate private key location.
+  # https-private-key = ""
   max-row-limit = 10000
+  realm = "InfluxDB"
+
+###
+### [subsciber]
+###
+### Controls the subscriptions, which can be used to fork a copy of all data
+### received by the InfluxDB host.
+###
+
+[subsciber]
+  enabled = true
+  http-timeout = "30s"
+
 
 ###
 ### [[graphite]]
@@ -195,9 +218,9 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
   # otherwise you could get dropped metrics or poor performance. Batching
   # will buffer points in memory if you have many coming in.
 
-  batch-size = 1000 # will flush if this many points get buffered
+  # batch-size = 5000 # will flush if this many points get buffered
   # batch-pending = 10 # number of batches that may be pending in memory
-  batch-timeout = "1s" # will flush at least this often even if we haven't hit buffer limit
+  # batch-timeout = "1s" # will flush at least this often even if we haven't hit buffer limit
   # udp-read-buffer = 0 # UDP Read buffer size, 0 means OS default. UDP listener will fail if set above OS max.
 
   ### Default tags that will be added to all metrics.  These can be overridden at the template level
@@ -208,7 +231,7 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
 ###
 ### [collectd]
 ###
-### Controls the listener for collectd data.
+### Controls one or many listeners for collectd data.
 ###
 
 [[collectd]]
@@ -234,7 +257,7 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
 ###
 ### [opentsdb]
 ###
-### Controls the listener for OpenTSDB data.
+### Controls one or many listeners for OpenTSDB data.
 ###
 
 [[opentsdb]]
@@ -284,21 +307,6 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
   # udp-payload-size = 65536
 
 ###
-### Controls the system self-monitoring, statistics and diagnostics.
-###
-### The internal database for monitoring data is created automatically if
-### if it does not already exist. The target retention within this database
-### is called 'monitor' and is also created with a retention period of 7 days
-### and a replication factor of 1, if it does not exist. In all cases the
-### this retention policy is configured as the default for the database.
-
-[monitor]
-  store-enabled = true # Whether to record statistics internally.
-  store-database = "_internal" # The destination database for recorded statistics
-  store-interval = "10s" # The interval at which to record statistics
-
-
-###
 ### [continuous_queries]
 ###
 ### Controls how continuous queries are run within InfluxDB.
@@ -308,7 +316,3 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
   log-enabled = true
   enabled = true
   # run-interval = "1s" # interval for how often continuous queries will be checked if they need to run
-  recompute-previous-n = 2
-  recompute-no-older-than = "10m0s"
-  compute-runs-per-interval = 10
-  compute-no-more-than = "2m0s"
