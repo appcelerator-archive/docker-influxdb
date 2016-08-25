@@ -1,13 +1,8 @@
-docker-influxdb
-=====================
+# docker-influxdb
 
-[![Build Status](http://drone.amp.appcelerator.io:8000/api/badges/appcelerator/docker-influxdb/status.svg)](http://drone.amp.appcelerator.io:8000/appcelerator/docker-influxdb)
+[InfluxDB](https://influxdata.com/time-series-platform/influxdb/) image based on Alpine linux.
 
-InfluxDB image
-
-
-Usage
------
+## Usage
 
 To create the image `appcelerator/influxdb`, execute the following command in this folder:
 
@@ -18,57 +13,57 @@ You can now push new image to the registry:
     docker push appcelerator/influxdb
 
 
-Running your InfluxDB image
----------------------------
+## Running your InfluxDB image
 
-Start your image binding the external ports `8083` and `8086` in all interfaces to your container. Ports `8090` and `8099` are only used for clustering and should not be exposed to the internet:
+Start your image binding the external ports `8083` and `8086` in all interfaces to your container.
 
-```docker run -d -p 8083:8083 -p 8086:8086 appcelerator/influxdb```
+    docker run -d -p 8083:8083 -p 8086:8086 appcelerator/influxdb
 
-`Docker` containers are easy to delete. If you delete your container instance and your cluster goes offline, you'll lose the InfluxDB store and configuration. If you are serious about keeping InfluxDB data persistently, then consider adding a volume mapping to the containers `/data` folder:
+Docker containers are easy to delete. If you delete your container instance and your cluster goes offline, you'll lose the InfluxDB store and configuration. If you are serious about keeping InfluxDB data persistently, then consider adding a volume mapping to the containers `/data` folder.
 
-```docker run -d --volume=/var/influxdb:/data -p 8083:8083 -p 8086:8086 appcelerator/influxdb```
+## Configuration (ENV, -e)
 
-Initially create Database
--------------------------
-Use `-e PRE_CREATE_DB="db1;db2;db3"` to create database named "db1", "db2", and "db3" on the first time the container starts automatically. Each database name is separated by `;`. For example:
+Variable | Description | Default value | Sample value 
+-------- | ----------- | ------------- | ------------
+FORCE_HOSTNAME | Sets the hostname of the container | localhost | auto 
+ADMIN_USER | InfluxDB admin user | root | root 
+INFLUXDB_INIT_PWD | InfluxDB admin password | root | mlkj3l6$ 
+PRE_CREATE_DB | list of databases to create, semi colon separated | **None** | telegraf 
+GRAPHITE_DB | Graphite database | | 
+GRAPHITE_BINDING | Graphite binding | :2003 | 
+GRAPHITE_PROTOCOL | Graphite protocol | tcp | 
+GRAPHITE_TEMPLATE | Graphite template | instance.profile.measurement* | 
+COLLECTD_DB | Collectd database | | 
+COLLECTD_BINDING | Collectd binding | :25826 | 
+COLLECTD_RETENTION_POLICY | Collectd retention policy | | 
+UDP_DB | UDP listener database | | 
+UDP_PORT | UDP listener for InfluxDB line protocol data | 4444 | 
+CONFIG_ARCHIVE_URL | URL of a configuration archive | | 
 
-```docker run -d -p 8083:8083 -p 8086:8086 -e ADMIN_USER="root" -e INFLUXDB_INIT_PWD="somepassword" -e PRE_CREATE_DB="db1;db2;db3" appcelerator/influxdb:latest```
 
-Initially execute influxql script 
----------------------------------
-Use `-v /tmp/init_script.influxql:/etc/extra-config/influxdb/init.influxql:ro` if you want that script to been executed on the first time the container starts automatically. Each influxql command on separated line. For example:
+## Initially execute influxql script 
 
-- Docker run command
-```
-docker run -d -p 8083:8083 -p 8086:8086 -e ADMIN_USER="root" -e INFLUXDB_INIT_PWD="somepassword" -v /tmp/init_script.influxql:/etc/extra-config/influxdb/init_script.influxql:ro appcelerator/influxdb:latest
-```
+Use the CONFIG_ARCHIVE_URL or alternatively use a local volume mapping to a file in /etc/extra-config/influxdb/ if you want a script to be executed the first time the container starts. Each influxql command on separated line. For example:
 
-- The influxdb script
-```
-CREATE DATABASE mydb
-CREATE USER writer WITH PASSWORD 'writerpass'
-CREATE USER reader WITH PASSWORD 'readerpass'
-GRANT WRITE ON mydb TO writer
-GRANT READ ON mydb TO reader
-```
+### Docker run command
+
+    docker run -d -p 8083:8083 -p 8086:8086 -v /tmp/init_script.influxql:/etc/extra-config/influxdb/init_script.influxql:ro appcelerator/influxdb:latest
+or
+    docker run -d -p 8083:8083 -p 8086:8086 -e CONFIG_ARCHIVE_URL=https://download.example.com/config/influxdb.tgz appcelerator/influxdb:latest
+
+### The influxdb script
+
+    ALTER  RETENTION POLICY default ON telegraf DURATION 1d SHARD DURATION 2h DEFAULT
+    CREATE RETENTION POLICY warm ON telegraf DURATION 15d REPLICATION 1 SHARD DURATION 1d
 
 Any script found in /etc/extra-config/influxdb/ will be loaded at start.
-
-An other way to load default configuration is to download a tarball archive from a public site. Use the CONFIG_ARCHIVE_URL for that:
-
-```
-docker run -d -p 8083:8083 -p 8086:8086 -e CONFIG_ARCHIVE_URL=https://download.example.com/config/influxdb.tgz appcelerator/influxdb:latest
-```
 
 The archive should contain under a top directory one or both directory:
 - base-config/influxdb
 - extra-config/influxdb
 
-amp-pilot
----------------
+## Tags
 
-To enable amp-pilot, specify the Consul URL, and mount the amp-pilot in /bin/amppilot/amp-pilot.alpine:
-
-```docker run -d -p 8083:8083 -p 8086:8086 -e CONSUL=consul:8500 -v /bin/amppilot:/bin/amppilot/amp-pilot.alpine:ro appcelerator/influxdb```
-
+- latest
+- influxdb-0.13
+- influxdb-1.0
