@@ -23,8 +23,6 @@ ADD config.toml /etc/influxdb/config.toml.tpl
 ADD run.sh /run.sh
 
 ENV PRE_CREATE_DB **None**
-ENV SSL_SUPPORT **False**
-ENV SSL_CERT **None**
 
 # Admin server WebUI
 EXPOSE 8083

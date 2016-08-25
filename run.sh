@@ -50,16 +50,6 @@ if [ "${PRE_CREATE_DB}" == "**None**" ]; then
     unset PRE_CREATE_DB
 fi
 
-# NOTE: It seems this is not used anymore...
-#
-# if [ "${SSL_CERT}" == "**None**" ]; then
-#     unset SSL_CERT
-# fi
-#
-# if [ "${SSL_SUPPORT}" == "**False**" ]; then
-#     unset SSL_SUPPORT
-# fi
-
 # Add Graphite support
 if [ -n "${GRAPHITE_DB}" ]; then
     echo "GRAPHITE_DB: ${GRAPHITE_DB}"
