@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
 
   telegraf:
-    image: appcelerator/telegraf:latest
+    image: appcelerator/telegraf:telegraf-1.0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/run/utmp:/var/run/utmp:ro
@@ -15,9 +15,6 @@ services:
       OUTPUT_INFLUXDB_ENABLED: "true"
       INFLUXDB_URL: "http://influxdb:8086"
       INPUT_DOCKER_ENABLED: "true"
-    labels:
-      - "ServiceUUId=system.telegraf"
-      - "io.appcelerator.amp.build.mounts=/var/run/docker.sock,/var/run/utmp"
 
   influxdb:
     image: appcelerator/influxdb
