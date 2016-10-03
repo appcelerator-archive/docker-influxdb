@@ -1,4 +1,4 @@
-FROM appcelerator/alpine:20160726
+FROM appcelerator/alpine:20160928
 MAINTAINER Nicolas Degory <ndegory@axway.com>
 
 ENV INFLUXDB_VERSION 1.0.1
