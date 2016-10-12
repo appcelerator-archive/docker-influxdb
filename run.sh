@@ -152,7 +152,14 @@ else
     #Create the admin user
     if [ -n "${ADMIN_USER}" ] || [ -n "${INFLUXDB_INIT_PWD}" ]; then
         echo "=> Creating admin user"
-        influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -execute="CREATE USER ${ADMIN} WITH PASSWORD '${PASS}' WITH ALL PRIVILEGES"
+        code=1
+        count=0
+        while [[ $code -ne 0 && $count -lt 5 ]]; do
+            influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -execute="CREATE USER ${ADMIN} WITH PASSWORD '${PASS}' WITH ALL PRIVILEGES"
+            code=$?
+            [ $code -ne 1 ] && sleep 1
+            ((count++))
+        done
     fi
 
     # Pre create database on the initiation of the container
@@ -177,11 +184,23 @@ else
         done
 
         echo "=> Executing the influxql script..."
-        influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN} -password="${PASS}" -import -path /tmp/init.influxql
+        code=1
+        count=0
+        while [[ $code -ne 0 && $count -lt 5 ]]; do
+            influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN} -password="${PASS}" -import -path /tmp/init.influxql
+            code=$?
+            [ $code -ne 1 ] && sleep 1
+            ((count++))
+        done
 
-        echo "=> Influxql script executed."
-        touch "/data/.init_script_executed"
-        rm /tmp/init.influxql
+        if [[ $code -eq 0 ]]; then
+            echo "=> Influxql script executed."
+            touch "/data/.init_script_executed"
+            rm /tmp/init.influxql
+        else
+            echo "ERROR - Influxql script has NOT been executed."
+            exit 1
+        fi
     else
         echo "=> No initialization script need to be executed"
     fi
