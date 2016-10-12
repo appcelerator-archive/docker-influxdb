@@ -3,7 +3,7 @@
 CONFIG_FILE="/etc/influxdb/config.toml"
 CONFIG_OVERRIDE_FILE="/etc/base-config/influxdb/config.toml"
 CONFIG_EXTRA_DIR="/etc/extra-config/influxdb/"
-INFLUX_HOST="localhost"
+INFLUX_HOST="127.0.0.1"
 INFLUX_API_PORT="8186"
 API_URL="http://${INFLUX_HOST}:${INFLUX_API_PORT}"
 ADMIN=${ADMIN_USER:-root}
