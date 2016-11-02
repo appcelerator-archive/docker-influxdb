@@ -1,19 +1,25 @@
 FROM appcelerator/alpine:20160928
 MAINTAINER Nicolas Degory <ndegory@axway.com>
 
-ENV INFLUXDB_VERSION 1.0.2
+ENV INFLUXDB_VERSION 1.1.0-rc1
 
+COPY patch/*.patch /tmp/
 RUN apk update && apk upgrade && \
-    apk --virtual build-deps add go>1.6 curl git gcc musl-dev make && \
+    apk --virtual build-deps add go curl git gcc musl-dev make patch && \
+    apk -v add curl go@community && \
     export GOPATH=/go && \
     go get -v github.com/influxdata/influxdb && \
     cd $GOPATH/src/github.com/influxdata/influxdb && \
     git checkout -q --detach "v${INFLUXDB_VERSION}" && \
+    for p in /tmp/*.patch; do patch -l -p1 -i $p; done && \
     python ./build.py && \
     chmod +x ./build/influx* && \
     mv ./build/influx* /bin/ && \
     mkdir -p /etc/influxdb /data/influxdb /data/influxdb/meta /data/influxdb/data /var/tmp/influxdb/wal /var/log/influxdb && \
+    apk del binutils-libs binutils gmp isl libgomp libatomic libgcc pkgconf pkgconfig mpfr3 mpc1 libstdc++ gcc go && \
     apk del build-deps && cd / && rm -rf $GOPATH/ /var/cache/apk/*
+
+RUN apk update && apk add util-linux && rm -rf /var/cache/apk/*
 
 ENV ADMIN_USER root
 ENV INFLUXDB_INIT_PWD root

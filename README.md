@@ -36,8 +36,8 @@ GRAPHITE_TEMPLATE | Graphite template | instance.profile.measurement* |
 COLLECTD_DB | Collectd database | | 
 COLLECTD_BINDING | Collectd binding | :25826 | 
 COLLECTD_RETENTION_POLICY | Collectd retention policy | | 
-UDP_DB | UDP listener database | | 
-UDP_PORT | UDP listener for InfluxDB line protocol data | 4444 | 
+UDP_DB | UDP listener database | | udp
+UDP_PORT | UDP listener for InfluxDB line protocol data | 8089 | 
 CONFIG_ARCHIVE_URL | URL of a configuration archive | | 
 
 

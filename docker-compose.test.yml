@@ -8,6 +8,8 @@ services:
       INTERVAL: 3s
       FLUSH_INTERVAL: 3s
       FLUSH_JITTER: 0.2s
+    depends_on:
+      - influxdb
   influxdb:
     extends:
       file: docker-compose.yml

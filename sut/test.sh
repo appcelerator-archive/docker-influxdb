@@ -11,7 +11,7 @@ while [[ $r -ne 0 ]]; do
   curl -I $INFLUXDB_HOST:8083 2>/dev/null | grep -q "HTTP/1.1 200 OK"
   r=$?
   ((i++))
-  if [[ $i -gt 60 ]]; then break; fi
+  if [[ $i -gt 20 ]]; then break; fi
   echo -n "+"
 done
 if [[ $r -ne 0 ]]; then

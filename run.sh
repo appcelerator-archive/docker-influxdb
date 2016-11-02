@@ -139,7 +139,6 @@ if [ ! -f "${CONFIG_FILE}" ]; then
     exit 1
 fi
 
-
 if [[ -f "/data/.init_script_executed" && "x$FORCE_INIT" != "xtrue" ]]; then
     echo "=> The initialization script had been executed before, skipping ..."
 else
@@ -151,11 +150,11 @@ else
 
     #Create the admin user
     if [ -n "${ADMIN_USER}" ] || [ -n "${INFLUXDB_INIT_PWD}" ]; then
-        echo "=> Creating admin user"
+        echo "=> Creating admin user: $ADMIN_USER"
         code=1
         count=0
         while [[ $code -ne 0 && $count -lt 5 ]]; do
-            influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -execute="CREATE USER ${ADMIN} WITH PASSWORD '${PASS}' WITH ALL PRIVILEGES"
+            influx -host ${INFLUX_HOST} -port ${INFLUX_API_PORT} -database "_internal" -execute "CREATE USER ${ADMIN} WITH PASSWORD '${PASS}' WITH ALL PRIVILEGES"
             code=$?
             [ $code -ne 1 ] && sleep 1
             ((count++))
@@ -187,7 +186,7 @@ else
         code=1
         count=0
         while [[ $code -ne 0 && $count -lt 5 ]]; do
-            influx -host=${INFLUX_HOST} -port=${INFLUX_API_PORT} -username=${ADMIN} -password="${PASS}" -import -path /tmp/init.influxql
+            influx -host ${INFLUX_HOST} -port ${INFLUX_API_PORT} -database _internal -username ${ADMIN} -password "${PASS}" -import -path /tmp/init.influxql
             code=$?
             [ $code -ne 1 ] && sleep 1
             ((count++))
@@ -214,5 +213,5 @@ fi
 
 echo "=> Starting InfluxDB in foreground ..."
 CMD="influxd"
-CMDARGS="-config=${CONFIG_FILE}"
+CMDARGS="run -config=${CONFIG_FILE}"
 exec "$CMD" $CMDARGS

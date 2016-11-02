@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
 
   telegraf:
-    image: appcelerator/telegraf:telegraf-1.0
+    image: appcelerator/telegraf:telegraf-1.1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /var/run/utmp:/var/run/utmp:ro
@@ -25,6 +25,6 @@ services:
       - "8086:8086"
       - "8083:8083"
     environment:
-      FORCE_HOSTNAME: auto
-      CONFIG_ARCHIVE_URL: "https://github.com/appcelerator/amp-config/archive/0.2.0.tar.gz"
+      FORCE_HOSTNAME: influxdb
+      CONFIG_ARCHIVE_URL: "https://github.com/appcelerator/amp-config/archive/0.4.0.tar.gz"
       PRE_CREATE_DB: "telegraf"

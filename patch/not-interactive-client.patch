@@ -1,0 +1,16 @@
+diff --git c/cmd/influx/cli/cli.go w/cmd/influx/cli/cli.go
+index a9e044b..1415a57 100644
+--- c/cmd/influx/cli/cli.go
++++ w/cmd/influx/cli/cli.go
+@@ -90,7 +90,10 @@ func (c *CommandLine) Run() error {
+ 		if err != nil {
+ 			return err
+ 		}
+-		return c.ExecuteQuery(string(cmd))
++		if string(cmd) != "" {
++			return c.ExecuteQuery(string(cmd))
++		}
++		// no stdin, switch back to meta commands
+ 	}
+ 
+ 	if !c.IgnoreSignals {
