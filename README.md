@@ -64,6 +64,6 @@ The archive should contain under a top directory one or both directory:
 
 ## Tags
 
-- latest
 - influxdb-0.13
-- influxdb-1.0
+- influxdb-1.0, latest
+- influxdb-1.1
