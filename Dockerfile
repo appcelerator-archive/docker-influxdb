@@ -1,9 +1,8 @@
 FROM appcelerator/alpine:20160928
 MAINTAINER Nicolas Degory <ndegory@axway.com>
 
-ENV INFLUXDB_VERSION 1.1.0-rc1
+ENV INFLUXDB_VERSION 1.1.0-rc2
 
-COPY patch/*.patch /tmp/
 RUN apk update && apk upgrade && \
     apk --virtual build-deps add go curl git gcc musl-dev make patch && \
     apk -v add curl go@community && \
@@ -11,7 +10,6 @@ RUN apk update && apk upgrade && \
     go get -v github.com/influxdata/influxdb && \
     cd $GOPATH/src/github.com/influxdata/influxdb && \
     git checkout -q --detach "v${INFLUXDB_VERSION}" && \
-    for p in /tmp/*.patch; do patch -l -p1 -i $p; done && \
     python ./build.py && \
     chmod +x ./build/influx* && \
     mv ./build/influx* /bin/ && \
