@@ -1,11 +1,10 @@
-FROM appcelerator/alpine:20160928
+FROM appcelerator/alpine:3.5.1
 MAINTAINER Nicolas Degory <ndegory@axway.com>
 
 ENV INFLUXDB_VERSION 1.1.1
 
 RUN apk update && apk upgrade && \
-    apk --virtual build-deps add go curl git gcc musl-dev make patch && \
-    apk -v add curl go@community && \
+    apk --virtual build-deps add go curl python git gcc musl-dev make patch && \
     export GOPATH=/go && \
     go get -v github.com/influxdata/influxdb && \
     cd $GOPATH/src/github.com/influxdata/influxdb && \
@@ -14,7 +13,6 @@ RUN apk update && apk upgrade && \
     chmod +x ./build/influx* && \
     mv ./build/influx* /bin/ && \
     mkdir -p /etc/influxdb /data/influxdb /data/influxdb/meta /data/influxdb/data /var/tmp/influxdb/wal /var/log/influxdb && \
-    apk del binutils-libs binutils gmp isl libgomp libatomic libgcc pkgconf pkgconfig mpfr3 mpc1 libstdc++ gcc go && \
     apk del build-deps && cd / && rm -rf $GOPATH/ /var/cache/apk/*
 
 RUN apk update && apk add util-linux && rm -rf /var/cache/apk/*
@@ -38,7 +36,7 @@ VOLUME ["/data"]
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["/run.sh"]
 
-HEALTHCHECK --interval=5s --retries=24 --timeout=1s CMD curl -sI localhost:8086/ping | grep -q "204 No Content"
+HEALTHCHECK --interval=5s --retries=24 --timeout=1s CMD curl -sI 127.0.0.1:8086/ping | grep -q "204 No Content"
 
 LABEL axway_image="influxdb"
 # will be updated whenever there's a new commit

@@ -13,7 +13,7 @@ reporting-disabled = true
 # we'll try to get the hostname automatically, but if it the os returns something
 # that isn't resolvable by other servers in the cluster, use this option to
 # manually set the hostname
-hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
+hostname = "{{ .CONFIG_HOSTNAME | default "localhost" }}"
 ###
 ### [meta]
 ###
@@ -58,7 +58,7 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
   
   # Trace logging provides more verbose output around the tsm engine. Turning 
   # this on can provide more useful output for debugging tsm engine issues.
-  trace-logging-enabled = {{ TRACE_LOGGING | default("false") }}
+  trace-logging-enabled = {{ .TRACE_LOGGING | default "false" }}
 
   # Whether queries should be logged before execution. Very useful for troubleshooting, but will
   # log any sensitive data contained within a query.
@@ -231,7 +231,7 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
   log-enabled = true
 
   # Determines whether detailed write logging is enabled.
-  write-tracing = {{ TRACE_LOGGING | default("false") }}
+  write-tracing = {{ .TRACE_LOGGING | default "false" }}
 
   # Determines whether the pprof endpoint is enabled.  This endpoint is used for
   # troubleshooting and monitoring.
@@ -297,11 +297,11 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
 ###
 
 [[graphite]]
-  {% if CONFIG_GRAPHITE_DATABASE is defined %}
+  {{ if .CONFIG_GRAPHITE_DATABASE }}
   enabled = true
-  database = "{{ CONFIG_GRAPHITE_DATABASE }}"
-  bind-address = "{{ CONFIG_GRAPHITE_BINDING | default(":2003") }}"
-  protocol = "{{ CONFIG_GRAPHITE_PROTOCOL | default("tcp") }}"
+  database = "{{ .CONFIG_GRAPHITE_DATABASE }}"
+  bind-address = "{{ .CONFIG_GRAPHITE_BINDING | default ":2003" }}"
+  protocol = "{{ .CONFIG_GRAPHITE_PROTOCOL | default "tcp" }}"
   ### Each template line requires a template pattern.  It can have an optional
   ### filter before the template and separated by spaces.  It can also have optional extra
   ### tags following the template.  Multiple tags should be separated by commas and no spaces
@@ -312,11 +312,11 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
      # filter + template + extra tag
      #"stats.* .host.measurement* region=us-west,agent=sensu",
      # default template. Ignore the first graphite component "servers"
-     "{{ CONFIG_GRAPHITE_TEMPLATE | default("instance.profile.measurement*") }}"
+     "{{ .CONFIG_GRAPHITE_TEMPLATE | default "instance.profile.measurement*" }}"
  ]
-  {% else %}
+  {{ else }}
   enabled = false
-  {% endif %}
+  {{ end }}
   consistency-level = "one"
   separator = "."
   # These next lines control how batching works. You should have this enabled
@@ -340,14 +340,14 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
 ###
 
 [[collectd]]
-  {% if CONFIG_COLLECTD_DB is defined %}
+  {{ if .CONFIG_COLLECTD_DB }}
   enabled = true
-  database = "{{ CONFIG_COLLECTD_DB }}"
-  bind-address = "{{ CONFIG_COLLECTD_BINDING | default(":25826") }}"
-  retention-policy = "{{ CONFIG_COLLECTD_RETENTION_POLICY }}"
-  {% else %}
+  database = "{{ .CONFIG_COLLECTD_DB }}"
+  bind-address = "{{ .CONFIG_COLLECTD_BINDING | default ":25826" }}"
+  retention-policy = "{{ .CONFIG_COLLECTD_RETENTION_POLICY }}"
+  {{ else }}
   enabled = false
-  {% endif %}  
+  {{ end }}  
   # typesdb = "/usr/share/collectd/types.db"
 
   # These next lines control how batching works. You should have this enabled
@@ -390,13 +390,13 @@ hostname = "{{ CONFIG_HOSTNAME | default("localhost") }}"
 ###
 
 [[udp]]
-  {% if CONFIG_UDP_DB is defined %}
+  {{ if .CONFIG_UDP_DB }}
   enabled = true
-  bind-address = ":{{ CONFIG_UDP_PORT | default(8089) }}"
-  database = "{{ CONFIG_UDP_DB }}"
-  {% else %}
+  bind-address = ":{{ .CONFIG_UDP_PORT | default "8089" }}"
+  database = "{{ .CONFIG_UDP_DB }}"
+  {{ else }}
   enabled = false
-  {% endif %}
+  {{ end }}
   # retention-policy = ""
 
   # These next lines control how batching works. You should have this enabled
