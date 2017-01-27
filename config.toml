@@ -412,6 +412,16 @@ hostname = "{{ .CONFIG_HOSTNAME | default "localhost" }}"
   # set the expected UDP payload size; lower values tend to yield better performance, default is max UDP size 65536
   # udp-payload-size = 65536
 
+  # Number of batches that may be pending in memory
+  # batch-pending = 10
+
+  # Will flush at least this often even if we haven't hit buffer limit
+  # batch-timeout = "1s"
+
+  # UDP Read buffer size, 0 means OS default. UDP listener will fail if set above OS max.
+  # read-buffer = 0
+
+
 ###
 ### [continuous_queries]
 ###

@@ -1,7 +1,7 @@
 FROM appcelerator/alpine:3.5.1
 MAINTAINER Nicolas Degory <ndegory@axway.com>
 
-ENV INFLUXDB_VERSION 1.1.1
+ENV INFLUXDB_VERSION 1.2.0
 
 RUN apk update && apk upgrade && \
     apk --virtual build-deps add go curl python git gcc musl-dev make patch && \
@@ -37,8 +37,3 @@ ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["/run.sh"]
 
 HEALTHCHECK --interval=5s --retries=24 --timeout=1s CMD curl -sI 127.0.0.1:8086/ping | grep -q "204 No Content"
-
-LABEL axway_image="influxdb"
-# will be updated whenever there's a new commit
-LABEL commit=${GIT_COMMIT}
-LABEL branch=${GIT_BRANCH}
