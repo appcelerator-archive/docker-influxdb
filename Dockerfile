@@ -2,9 +2,22 @@ FROM appcelerator/alpine:3.5.2
 
 ENV INFLUXDB_VERSION 1.2.2
 
+ENV GOLANG_VERSION 1.8
+ENV GOLANG_SRC_URL https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz
+ENV GOLANG_SRC_SHA256 406865f587b44be7092f206d73fc1de252600b79b3cacc587b74b5ef5c623596
+
 RUN apk update && apk upgrade && \
-    apk --virtual build-deps add go curl python git gcc musl-dev make patch && \
+    apk --virtual build-deps add go python openssl git gcc musl-dev make patch && \
+    export GOROOT_BOOTSTRAP="$(go env GOROOT)" && \
+    wget -q "$GOLANG_SRC_URL" -O golang.tar.gz && \
+    echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - && \
+    tar -C /usr/local -xzf golang.tar.gz && \
+    rm golang.tar.gz && \
+    cd /usr/local/go/src && \
+    ./make.bash && \
     export GOPATH=/go && \
+    export PATH=/usr/local/go/bin:$PATH && \
+    go version && \
     go get -v github.com/influxdata/influxdb && \
     cd $GOPATH/src/github.com/influxdata/influxdb && \
     git checkout -q --detach "v${INFLUXDB_VERSION}" && \
@@ -12,7 +25,7 @@ RUN apk update && apk upgrade && \
     chmod +x ./build/influx* && \
     mv ./build/influx* /bin/ && \
     mkdir -p /etc/influxdb /data/influxdb /data/influxdb/meta /data/influxdb/data /var/tmp/influxdb/wal /var/log/influxdb && \
-    apk del build-deps && cd / && rm -rf $GOPATH/ /var/cache/apk/*
+    apk del build-deps && cd / && rm -rf $GOPATH/ /var/cache/apk/* /usr/local/go
 
 RUN apk update && apk add util-linux && rm -rf /var/cache/apk/*
 
