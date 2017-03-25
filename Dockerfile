@@ -1,7 +1,6 @@
-FROM appcelerator/alpine:3.5.1
-MAINTAINER Nicolas Degory <ndegory@axway.com>
+FROM appcelerator/alpine:3.5.2
 
-ENV INFLUXDB_VERSION 1.2.0
+ENV INFLUXDB_VERSION 1.2.2
 
 RUN apk update && apk upgrade && \
     apk --virtual build-deps add go curl python git gcc musl-dev make patch && \

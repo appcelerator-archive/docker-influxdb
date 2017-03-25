@@ -67,4 +67,4 @@ The archive should contain under a top directory one or both directory:
 - influxdb-0.13
 - influxdb-1.0.2, influxdb-1.0
 - influxdb-1.1.2, influxdb-1.1
-- influxdb-1.2.0, influxdb-1.2, latest
+- influxdb-1.2.2, influxdb-1.2, latest
